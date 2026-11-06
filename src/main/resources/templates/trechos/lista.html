@@ -1,0 +1,60 @@
+<!DOCTYPE html>
+<html lang="pt-br" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <title>Cadastro de Trecho</title>
+</head>
+<body>
+
+<h1>Cadastro de Trecho</h1>
+
+<form th:action="@{/trechos/salvar}"
+      th:object="${trecho}" method="post">
+
+    <input type="hidden" th:field="*{id}">
+
+    <label>Logradouro:</label>
+    <input type="text" th:field="*{logradouro}" required>
+
+    <br><br>
+
+    <label>Tipo de Calçada:</label>
+    <select th:field="*{tipoCalcada}" required>
+        <option value="">Selecione</option>
+        <option value="Regular">Regular</option>
+        <option value="Irregular">Irregular</option>
+        <option value="Escadaria">Escadaria</option>
+        <option value="Sem iluminação">Sem iluminação</option>
+    </select>
+
+    <br><br>
+
+    <label>Altitude (m):</label>
+    <input type="number" th:field="*{altitude}"
+           min="0" max="2000" required>
+
+    <br><br>
+
+    <label>Bairro:</label>
+    <select th:field="*{bairroId}" required>
+        <option value="">Selecione</option>
+
+        <option th:each="bairro : ${bairros}"
+                th:value="${bairro.id}"
+                th:text="${bairro.nome}">
+        </option>
+    </select>
+
+    <br><br>
+
+    <button type="submit">Salvar</button>
+
+</form>
+
+<br>
+
+<a th:href="@{/trechos}">Voltar</a>
+
+</body>
+</html>
+
