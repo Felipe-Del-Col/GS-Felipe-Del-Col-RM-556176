@@ -1,4 +1,3 @@
-
 <!DOCTYPE html>
 <html lang="pt-br" xmlns:th="http://www.thymeleaf.org">
 <head>
@@ -19,7 +18,7 @@
 
     <br><br>
 
-    <label>Tipo de Calcada:</label>
+    <label>Tipo de Calçada:</label>
     <select th:field="*{tipoCalcada}" required>
         <option value="">Selecione</option>
         <option value="Regular">Regular</option>
@@ -37,13 +36,12 @@
     <br><br>
 
     <label>Bairro:</label>
-    <select name="bairroId" required>
+    <select th:field="*{bairroId}" required>
         <option value="">Selecione</option>
 
         <option th:each="bairro : ${bairros}"
                 th:value="${bairro.id}"
-                th:text="${bairro.nome}"
-                th:selected="${trecho.bairro != null and trecho.bairro.id == bairro.id}">
+                th:text="${bairro.nome}">
         </option>
     </select>
 
@@ -59,3 +57,4 @@
 
 </body>
 </html>
+
