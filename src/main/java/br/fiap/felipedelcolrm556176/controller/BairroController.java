@@ -1,3 +1,4 @@
+
 package br.fiap.felipedelcolrm556176.controller;
 
 import br.fiap.felipedelcolrm556176.dto.BairroDTO;
@@ -7,7 +8,11 @@ import br.fiap.felipedelcolrm556176.service.BairroService;
 
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
-import org.springframework.web.bind.annotation.*;
+import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.bind.annotation.ModelAttribute;
+import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 import org.springframework.dao.DataIntegrityViolationException;
 
@@ -27,17 +32,18 @@ public class BairroController {
     @GetMapping
     public String listar(Model model) {
 
-        List<BairroDTO> bairros = new ArrayList<>();
+        List<Bairro> bairros = bairroService.listar();
 
-        for (Bairro bairro : bairroService.listar()) {
-            bairros.add(BairroMapper.paraDTO(bairro));
+        List<BairroDTO> listaDTO = new ArrayList<>();
+
+        for (Bairro bairro : bairros) {
+            listaDTO.add(BairroMapper.paraDTO(bairro));
         }
 
-        model.addAttribute("bairros", bairros);
+        model.addAttribute("bairros", listaDTO);
 
         return "bairros/lista";
     }
-
 
     @GetMapping("/novo")
     public String novo(Model model) {
@@ -47,35 +53,14 @@ public class BairroController {
         return "bairros/formulario";
     }
 
-    @PostMapping("/salvar")
-    public String salvar(@ModelAttribute BairroDTO dto, RedirectAttributes redirect) {
-
-        try {
-            Bairro bairro = BairroMapper.paraEntidade(dto);
-
-            if (bairro.getId() == null) {
-                bairroService.salvar(bairro);
-            } else {
-                bairroService.atualizar(bairro.getId(), bairro);
-            }
-
-            redirect.addFlashAttribute("mensagem", "Bairro salvo com sucesso!");
-
-        } catch (IllegalArgumentException e) {
-
-            redirect.addFlashAttribute("erro", e.getMessage());
-        }
-
-        return "redirect:/bairros";
-    }
-
     @GetMapping("/editar/{id}")
-    public String editar(@PathVariable Long id, Model model, RedirectAttributes redirect) {
+    public String editar(@PathVariable Long id, Model model, RedirectAttributes redirectAttributes) {
 
         Bairro bairro = bairroService.buscarPorId(id);
 
         if (bairro == null) {
-            redirect.addFlashAttribute("erro", "Bairro nao encontrado!");
+
+            redirectAttributes.addFlashAttribute("erro", "Bairro não encontrado.");
 
             return "redirect:/bairros";
         }
@@ -85,27 +70,51 @@ public class BairroController {
         return "bairros/formulario";
     }
 
+    @PostMapping("/salvar")
+    public String salvar(@ModelAttribute("bairro") BairroDTO bairroDTO, RedirectAttributes redirectAttributes) {
+
+        try {
+
+            Bairro bairro = BairroMapper.paraEntidade(bairroDTO);
+
+            if (bairroDTO.getId() == null) {
+
+                bairroService.salvar(bairro);
+
+                redirectAttributes.addFlashAttribute("mensagem", "Bairro cadastrado com sucesso.");
+
+            } else {
+
+                bairroService.atualizar(bairroDTO.getId(), bairro);
+
+                redirectAttributes.addFlashAttribute("mensagem", "Bairro atualizado com sucesso.");
+            }
+
+        } catch (IllegalArgumentException e) {
+
+            redirectAttributes.addFlashAttribute("erro", e.getMessage());
+        }
+
+        return "redirect:/bairros";
+    }
+
     @PostMapping("/excluir/{id}")
-    public String excluir(@PathVariable Long id, RedirectAttributes redirect) {
+    public String excluir(@PathVariable Long id, RedirectAttributes redirectAttributes) {
 
         try {
 
             bairroService.excluir(id);
 
-            redirect.addFlashAttribute("mensagem", "Bairro excluido com sucesso!");
-
-        } catch (DataIntegrityViolationException e) {
-
-            redirect.addFlashAttribute("erro", "Nao e possivel excluir bairro com trechos!");
+            redirectAttributes.addFlashAttribute("mensagem", "Bairro excluído com sucesso.");
 
         } catch (IllegalArgumentException e) {
 
-            redirect.addFlashAttribute("erro", e.getMessage());
-        }
+            redirectAttributes.addFlashAttribute("erro", e.getMessage());
 
+        } catch (DataIntegrityViolationException e) {
+
+            redirectAttributes.addFlashAttribute("erro", "Não é possível excluir este bairro, pois possui trechos cadastrados.");
+        }
         return "redirect:/bairros";
     }
 }
-
-
-

@@ -1,0 +1,104 @@
+
+<!DOCTYPE html>
+<html lang="pt-br" xmlns:th="http://www.thymeleaf.org">
+
+<head>
+    <meta charset="UTF-8">
+    <title>Painel de Situação</title>
+</head>
+
+<body>
+
+<h1>Cidade em Dia de Chuva</h1>
+<h2>Painel de Situação por Bairro</h2>
+
+<p th:text="${erro}"></p>
+
+<form th:action="@{/painel}" method="get">
+
+    <label>Selecione o Bairro:</label>
+
+    <select name="bairroId" required>
+        <option value="">Selecione</option>
+
+        <option th:each="bairro : ${bairros}"
+                th:value="${bairro.id}"
+                th:text="${bairro.nome}"
+                th:selected="${bairroSelecionado != null and bairro.id == bairroSelecionado.id}">
+        </option>
+    </select>
+
+    <button type="submit">Consultar</button>
+
+</form>
+
+<br>
+
+<div th:if="${bairroSelecionado != null}">
+
+    <h2 th:text="${bairroSelecionado.nome}"></h2>
+
+    <h3>Resumo dos Status</h3>
+
+    <p>
+        NORMAL:
+        <span th:text="${normal}"></span>
+    </p>
+
+    <p>
+        ATENCAO:
+        <span th:text="${atencao}"></span>
+    </p>
+
+    <p>
+        ALERTA:
+        <span th:text="${alerta}"></span>
+    </p>
+
+    <p>
+        SEM LEITURA:
+        <span th:text="${semLeitura}"></span>
+    </p>
+
+    <h3>Situação dos Trechos</h3>
+
+    <table border="1">
+
+        <tr>
+            <th>Trecho</th>
+            <th>Data e Hora</th>
+            <th>Nível da Água (cm)</th>
+            <th>Status</th>
+        </tr>
+
+        <tr th:each="item : ${itens}">
+
+            <td th:text="${item.logradouro}"></td>
+
+            <td th:text="${item.dataHora != null ? item.dataHora : '-'}"></td>
+
+            <td th:text="${item.laminaCm != null ? item.laminaCm : '-'}"></td>
+
+            <td th:text="${item.status}"></td>
+
+        </tr>
+
+    </table>
+
+</div>
+
+<br>
+
+<a th:href="@{/bairros}">Bairros</a>
+
+<br><br>
+
+<a th:href="@{/trechos}">Trechos</a>
+
+<br><br>
+
+<a th:href="@{/leituras}">Leituras</a>
+
+</body>
+</html>
+
