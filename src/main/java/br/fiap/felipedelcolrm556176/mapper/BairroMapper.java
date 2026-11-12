@@ -1,12 +1,26 @@
-
 package br.fiap.felipedelcolrm556176.mapper;
 
-import br.fiap.felipedelcolrm556176.model.Bairro;
 import br.fiap.felipedelcolrm556176.dto.BairroDTO;
+import br.fiap.felipedelcolrm556176.model.Bairro;
 
+import org.springframework.stereotype.Component;
+
+@Component
 public class BairroMapper {
 
-    public static BairroDTO paraDTO(Bairro bairro) {
+    public Bairro toEntity(BairroDTO dto) {
+
+        Bairro bairro = new Bairro();
+
+        bairro.setId(dto.getId());
+        bairro.setNome(dto.getNome());
+        bairro.setZona(dto.getZona());
+        bairro.setAreaKm2(dto.getAreaKm2());
+
+        return bairro;
+    }
+
+    public BairroDTO toDTO(Bairro bairro) {
 
         BairroDTO dto = new BairroDTO();
 
@@ -19,15 +33,12 @@ public class BairroMapper {
     }
 
     public static Bairro paraEntidade(BairroDTO dto) {
+        return new BairroMapper().toEntity(dto);
+    }
 
-        Bairro bairro = new Bairro();
-
-        bairro.setId(dto.getId());
-        bairro.setNome(dto.getNome());
-        bairro.setZona(dto.getZona());
-        bairro.setAreaKm2(dto.getAreaKm2());
-
-        return bairro;
+    public static BairroDTO paraDTO(Bairro bairro) {
+        return new BairroMapper().toDTO(bairro);
     }
 }
+
 

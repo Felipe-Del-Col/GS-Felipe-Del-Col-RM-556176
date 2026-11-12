@@ -1,24 +1,27 @@
-
 <!DOCTYPE html>
 <html lang="pt-br" xmlns:th="http://www.thymeleaf.org">
 
 <head>
     <meta charset="UTF-8">
-    <title>Painel de Situação</title>
+    <title>Painel de Situação por Bairro</title>
 </head>
 
 <body>
 
 <h1>Cidade em Dia de Chuva</h1>
+
 <h2>Painel de Situação por Bairro</h2>
 
-<p th:text="${erro}"></p>
+<p th:if="${erro != null}"
+   th:text="${erro}"></p>
+
 
 <form th:action="@{/painel}" method="get">
 
     <label>Selecione o Bairro:</label>
 
     <select name="bairroId" required>
+
         <option value="">Selecione</option>
 
         <option th:each="bairro : ${bairros}"
@@ -26,6 +29,7 @@
                 th:text="${bairro.nome}"
                 th:selected="${bairroSelecionado != null and bairro.id == bairroSelecionado.id}">
         </option>
+
     </select>
 
     <button type="submit">Consultar</button>
@@ -65,25 +69,35 @@
     <table border="1">
 
         <tr>
-            <th>Trecho</th>
+            <th>Logradouro</th>
+            <th>Tipo de Calçada</th>
+            <th>Altitude (m)</th>
             <th>Data e Hora</th>
-            <th>Nível da Água (cm)</th>
-            <th>Status</th>
+            <th>Última Lâmina (cm)</th>
+            <th>Último Status</th>
         </tr>
 
         <tr th:each="item : ${itens}">
 
             <td th:text="${item.logradouro}"></td>
 
-            <td th:text="${item.dataHora != null ? item.dataHora : '-'}"></td>
+            <td th:text="${item.tipoCalcada}"></td>
 
-            <td th:text="${item.laminaCm != null ? item.laminaCm : '-'}"></td>
+            <td th:text="${item.altitude}"></td>
 
-            <td th:text="${item.status}"></td>
+            <td th:text="${item.dataHora != null ? #temporals.format(item.dataHora, 'dd/MM/yyyy HH:mm') : '-'}"></td>
+
+            <td th:text="${item.ultimaLamina != null ? item.ultimaLamina : '-'}"></td>
+
+            <td th:text="${item.ultimoStatus != null ? item.ultimoStatus : 'SEM LEITURA'}"></td>
 
         </tr>
 
     </table>
+
+    <p th:if="${#lists.isEmpty(itens)}">
+        Nenhum trecho cadastrado neste bairro.
+    </p>
 
 </div>
 
@@ -101,4 +115,3 @@
 
 </body>
 </html>
-

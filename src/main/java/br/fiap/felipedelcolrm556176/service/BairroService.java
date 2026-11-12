@@ -1,14 +1,16 @@
 
 package br.fiap.felipedelcolrm556176.service;
 
+import br.fiap.felipedelcolrm556176.dto.BairroDTO;
+import br.fiap.felipedelcolrm556176.mapper.BairroMapper;
 import br.fiap.felipedelcolrm556176.model.Bairro;
-import br.fiap.felipedelcolrm556176.model.Trecho;
 import br.fiap.felipedelcolrm556176.repository.BairroRepository;
 import br.fiap.felipedelcolrm556176.repository.TrechoRepository;
 
-import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
+import java.util.ArrayList;
 import java.util.List;
 
 @Service
@@ -16,71 +18,92 @@ public class BairroService {
 
     private BairroRepository bairroRepository;
     private TrechoRepository trechoRepository;
+    private BairroMapper bairroMapper;
 
-    public BairroService(BairroRepository bairroRepository, TrechoRepository trechoRepository) {
+    public BairroService(BairroRepository bairroRepository, TrechoRepository trechoRepository, BairroMapper bairroMapper) {
         this.bairroRepository = bairroRepository;
         this.trechoRepository = trechoRepository;
+        this.bairroMapper = bairroMapper;
     }
 
-    public List<Bairro> listar() {
-        return bairroRepository.findAll(Sort.by("nome"));
+    public List<BairroDTO> listar() {
+
+        List<Bairro> bairros = bairroRepository.findAllByOrderByNomeAsc();
+
+        List<BairroDTO> listaDTO = new ArrayList<>();
+
+        for (Bairro bairro : bairros) {
+            listaDTO.add(bairroMapper.toDTO(bairro));
+        }
+
+        return listaDTO;
     }
 
-    public Bairro buscarPorId(Long id) {
-        return bairroRepository.findById(id).orElse(null);
+
+    public BairroDTO buscarPorId(Long id) {
+
+        Bairro bairro = buscarEntidade(id);
+
+        return bairroMapper.toDTO(bairro);
     }
 
-    public Bairro salvar(Bairro bairro) {
+    public Bairro buscarEntidade(Long id) {
 
-        if (bairro.getNome() == null || bairro.getNome().trim().isEmpty()) {
+        Bairro bairro = bairroRepository.findById(id).orElse(null);
+
+        if (bairro == null) {
+            throw new IllegalArgumentException("Bairro não encontrado.");
+        }
+
+        return bairro;
+    }
+
+    @Transactional
+    public BairroDTO salvar(BairroDTO dto) {
+
+        if (dto.getNome() == null || dto.getNome().trim().isEmpty()) {
+
             throw new IllegalArgumentException("O nome do bairro é obrigatório.");
         }
 
-        if (bairro.getAreaKm2() == null || bairro.getAreaKm2() <= 0) {
-            throw new IllegalArgumentException("A área do bairro deve ser maior que zero.");
+        if (dto.getNome().length() > 80) {
+
+            throw new IllegalArgumentException("O nome deve ter no máximo 80 caracteres.");
         }
 
-        String zona = bairro.getZona();
+        String zona = dto.getZona();
 
-        if (zona == null || !(zona.equals("Centro") || zona.equals("Norte") || zona.equals("Sul") ||
-                        zona.equals("Leste") ||
-                        zona.equals("Oeste"))) {
+        if (zona == null || !(zona.equals("Centro") || zona.equals("Norte") || zona.equals("Sul") || zona.equals("Leste") || zona.equals("Oeste"))) {
 
             throw new IllegalArgumentException("Selecione uma zona válida.");
         }
-        return bairroRepository.save(bairro);
-    }
 
-    public Bairro atualizar(Long id, Bairro dados) {
+        if (dto.getAreaKm2() == null || dto.getAreaKm2() <= 0) {
 
-        Bairro bairro = buscarPorId(id);
-
-        if (bairro == null) {
-            throw new IllegalArgumentException("Bairro não encontrado.");
+            throw new IllegalArgumentException("A área do bairro deve ser maior que zero.");
         }
 
-        bairro.setNome(dados.getNome());
-        bairro.setZona(dados.getZona());
-        bairro.setAreaKm2(dados.getAreaKm2());
+        if (dto.getId() != null) {
+            buscarEntidade(dto.getId());
+        }
 
-        return salvar(bairro);
+        Bairro bairro = bairroMapper.toEntity(dto);
+
+        Bairro salvo = bairroRepository.save(bairro);
+
+        return bairroMapper.toDTO(salvo);
     }
 
+    @Transactional
     public void excluir(Long id) {
 
-        Bairro bairro = buscarPorId(id);
+        Bairro bairro = buscarEntidade(id);
 
-        if (bairro == null) {
-            throw new IllegalArgumentException("Bairro não encontrado.");
+        if (trechoRepository.existsByBairroId(id)) {
+
+            throw new IllegalArgumentException("Não é possível excluir este bairro, pois possui trechos cadastrados.");
         }
 
-        List<Trecho> trechos = trechoRepository.findAll();
-        for (Trecho trecho : trechos) {
-            if (trecho.getBairro() != null && trecho.getBairro().getId().equals(id)) {
-                throw new IllegalArgumentException("Não é possível excluir este bairro, pois possui trechos cadastrados.");
-            }
-        }
         bairroRepository.delete(bairro);
     }
 }
-

@@ -2,9 +2,6 @@
 package br.fiap.felipedelcolrm556176.controller;
 
 import br.fiap.felipedelcolrm556176.dto.TrechoDTO;
-import br.fiap.felipedelcolrm556176.mapper.TrechoMapper;
-import br.fiap.felipedelcolrm556176.model.Trecho;
-
 import br.fiap.felipedelcolrm556176.service.TrechoService;
 import br.fiap.felipedelcolrm556176.service.BairroService;
 
@@ -17,9 +14,6 @@ import org.springframework.web.bind.annotation.ModelAttribute;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 import org.springframework.dao.DataIntegrityViolationException;
-
-import java.util.ArrayList;
-import java.util.List;
 
 @Controller
 @RequestMapping("/trechos")
@@ -36,16 +30,7 @@ public class TrechoController {
     @GetMapping
     public String listar(Model model) {
 
-        List<Trecho> trechos = trechoService.listar();
-
-        List<TrechoDTO> listaDTO = new ArrayList<>();
-
-        for (Trecho trecho : trechos) {
-
-            listaDTO.add(TrechoMapper.paraDTO(trecho));
-        }
-
-        model.addAttribute("trechos", listaDTO);
+        model.addAttribute("trechos", trechoService.listar());
 
         return "trechos/lista";
     }
@@ -60,40 +45,41 @@ public class TrechoController {
         return "trechos/formulario";
     }
 
-    @GetMapping("/editar/{id}")
+    @GetMapping({"/editar/{id}", "/{id}/editar"})
     public String editar(@PathVariable Long id, Model model, RedirectAttributes redirectAttributes) {
 
-        Trecho trecho = trechoService.buscarPorId(id);
+        try {
 
-        if (trecho == null) {
+            TrechoDTO trecho = trechoService.buscarPorId(id);
 
-            redirectAttributes.addFlashAttribute("erro", "Trecho não encontrado.");
+            model.addAttribute("trecho", trecho);
+
+            model.addAttribute("bairros", bairroService.listar());
+
+            return "trechos/formulario";
+
+        } catch (IllegalArgumentException e) {
+
+            redirectAttributes.addFlashAttribute("erro", e.getMessage());
 
             return "redirect:/trechos";
         }
-
-        model.addAttribute("trecho", TrechoMapper.paraDTO(trecho));
-
-        model.addAttribute("bairros", bairroService.listar());
-
-        return "trechos/formulario";
     }
 
     @PostMapping("/salvar")
-    public String salvar(@ModelAttribute("trecho") TrechoDTO trechoDTO, RedirectAttributes redirectAttributes) {
+    public String salvar(@ModelAttribute("trecho") TrechoDTO dto, RedirectAttributes redirectAttributes) {
+
         try {
 
-            Trecho trecho = TrechoMapper.paraEntidade(trechoDTO);
+            boolean novo = dto.getId() == null;
 
-            if (trechoDTO.getId() == null) {
+            trechoService.salvar(dto);
 
-                trechoService.salvar(trecho);
+            if (novo) {
 
                 redirectAttributes.addFlashAttribute("mensagem", "Trecho cadastrado com sucesso.");
 
             } else {
-
-                trechoService.atualizar(trechoDTO.getId(), trecho);
 
                 redirectAttributes.addFlashAttribute("mensagem", "Trecho atualizado com sucesso.");
             }
@@ -106,13 +92,11 @@ public class TrechoController {
         return "redirect:/trechos";
     }
 
-    @PostMapping("/excluir/{id}")
+    @PostMapping({"/excluir/{id}", "/{id}/excluir"})
     public String excluir(@PathVariable Long id, RedirectAttributes redirectAttributes) {
 
         try {
-
             trechoService.excluir(id);
-
             redirectAttributes.addFlashAttribute("mensagem", "Trecho excluído com sucesso.");
 
         } catch (IllegalArgumentException e) {
@@ -127,3 +111,4 @@ public class TrechoController {
         return "redirect:/trechos";
     }
 }
+

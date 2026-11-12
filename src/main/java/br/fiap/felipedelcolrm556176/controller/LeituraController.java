@@ -1,17 +1,18 @@
+
 package br.fiap.felipedelcolrm556176.controller;
 
 import br.fiap.felipedelcolrm556176.dto.LeituraDTO;
-import br.fiap.felipedelcolrm556176.mapper.LeituraMapper;
-import br.fiap.felipedelcolrm556176.model.Leitura;
 import br.fiap.felipedelcolrm556176.service.LeituraService;
 import br.fiap.felipedelcolrm556176.service.TrechoService;
+
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
-import org.springframework.web.bind.annotation.*;
+import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.bind.annotation.ModelAttribute;
+import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.servlet.mvc.support.RedirectAttributes;
-
-import java.util.ArrayList;
-import java.util.List;
 
 @Controller
 @RequestMapping("/leituras")
@@ -28,13 +29,7 @@ public class LeituraController {
     @GetMapping
     public String listar(Model model) {
 
-        List<LeituraDTO> leituras = new ArrayList<>();
-
-        for (Leitura leitura : leituraService.listar()) {
-            leituras.add(LeituraMapper.paraDTO(leitura));
-        }
-
-        model.addAttribute("leituras", leituras);
+        model.addAttribute("leituras", leituraService.listar());
 
         return "leituras/lista";
     }
@@ -43,69 +38,76 @@ public class LeituraController {
     public String novo(Model model) {
 
         model.addAttribute("leitura", new LeituraDTO());
+
         model.addAttribute("trechos", trechoService.listar());
 
         return "leituras/formulario";
     }
 
-    @PostMapping("/salvar")
-    public String salvar(@ModelAttribute LeituraDTO dto, RedirectAttributes redirect) {
+    @GetMapping({"/editar/{id}", "/{id}/editar"})
+    public String editar(@PathVariable Long id,
+                         Model model,
+                         RedirectAttributes redirectAttributes) {
 
         try {
 
-            Leitura leitura = LeituraMapper.paraEntidade(dto);
+            LeituraDTO leitura = leituraService.buscarPorId(id);
 
-            if (leitura.getId() == null) {
-                leituraService.salvar(leitura);
-            } else {
-                leituraService.atualizar(leitura.getId(), leitura);
-            }
+            model.addAttribute("leitura", leitura);
 
-            redirect.addFlashAttribute("mensagem", "Leitura salva com sucesso!");
+            model.addAttribute("trechos", trechoService.listar());
+
+            return "leituras/formulario";
 
         } catch (IllegalArgumentException e) {
 
-            redirect.addFlashAttribute("erro", e.getMessage());
+            redirectAttributes.addFlashAttribute("erro", e.getMessage());
+
+            return "redirect:/leituras";
+        }
+    }
+
+    @PostMapping("/salvar")
+    public String salvar(@ModelAttribute("leitura") LeituraDTO dto, RedirectAttributes redirectAttributes) {
+
+        try {
+
+            boolean nova = dto.getId() == null;
+
+            leituraService.salvar(dto);
+
+            if (nova) {
+
+                redirectAttributes.addFlashAttribute("mensagem", "Leitura salva com sucesso!");
+
+            } else {
+
+                redirectAttributes.addFlashAttribute("mensagem", "Leitura atualizada com sucesso!");
+            }
+
+        } catch (IllegalArgumentException e) {
+
+            redirectAttributes.addFlashAttribute("erro", e.getMessage());
         }
 
         return "redirect:/leituras";
     }
 
-    @GetMapping("/editar/{id}")
-    public String editar(@PathVariable Long id, Model model, RedirectAttributes redirect) {
 
-        Leitura leitura = leituraService.buscarPorId(id);
-
-        if (leitura == null) {
-
-            redirect.addFlashAttribute("erro",
-                    "Leitura nao encontrada!");
-
-            return "redirect:/leituras";
-        }
-
-        model.addAttribute("leitura", LeituraMapper.paraDTO(leitura));
-
-        model.addAttribute("trechos", trechoService.listar());
-
-        return "leituras/formulario";
-    }
-
-    @PostMapping("/excluir/{id}")
-    public String excluir(@PathVariable Long id, RedirectAttributes redirect) {
+    @PostMapping({"/excluir/{id}", "/{id}/excluir"})
+    public String excluir(@PathVariable Long id, RedirectAttributes redirectAttributes) {
 
         try {
 
             leituraService.excluir(id);
 
-            redirect.addFlashAttribute("mensagem", "Leitura excluida com sucesso!");
+            redirectAttributes.addFlashAttribute("mensagem", "Leitura excluída com sucesso.");
 
         } catch (IllegalArgumentException e) {
 
-            redirect.addFlashAttribute("erro", e.getMessage());
+            redirectAttributes.addFlashAttribute("erro", e.getMessage());
         }
 
         return "redirect:/leituras";
     }
 }
-

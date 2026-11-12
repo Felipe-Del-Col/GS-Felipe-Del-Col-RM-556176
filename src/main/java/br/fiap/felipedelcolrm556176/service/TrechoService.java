@@ -1,50 +1,79 @@
 
 package br.fiap.felipedelcolrm556176.service;
 
+import br.fiap.felipedelcolrm556176.dto.TrechoDTO;
+import br.fiap.felipedelcolrm556176.mapper.TrechoMapper;
 import br.fiap.felipedelcolrm556176.model.Bairro;
 import br.fiap.felipedelcolrm556176.model.Trecho;
-import br.fiap.felipedelcolrm556176.model.Leitura;
-
-import br.fiap.felipedelcolrm556176.repository.BairroRepository;
 import br.fiap.felipedelcolrm556176.repository.TrechoRepository;
 import br.fiap.felipedelcolrm556176.repository.LeituraRepository;
 
-import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
+import java.util.ArrayList;
 import java.util.List;
 
 @Service
 public class TrechoService {
 
     private TrechoRepository trechoRepository;
-    private BairroRepository bairroRepository;
     private LeituraRepository leituraRepository;
+    private BairroService bairroService;
+    private TrechoMapper trechoMapper;
 
-    public TrechoService(TrechoRepository trechoRepository, BairroRepository bairroRepository, LeituraRepository leituraRepository) {
+    public TrechoService(TrechoRepository trechoRepository, LeituraRepository leituraRepository, BairroService bairroService, TrechoMapper trechoMapper) {
         this.trechoRepository = trechoRepository;
-        this.bairroRepository = bairroRepository;
         this.leituraRepository = leituraRepository;
+        this.bairroService = bairroService;
+        this.trechoMapper = trechoMapper;
     }
 
-    public List<Trecho> listar() {
+    public List<TrechoDTO> listar() {
 
-        return trechoRepository.findAll(Sort.by("altitude", "logradouro"));
+        List<Trecho> trechos = trechoRepository.findAllByOrderByAltitudeAscLogradouroAsc();
+
+        List<TrechoDTO> listaDTO = new ArrayList<>();
+
+        for (Trecho trecho : trechos) {
+            listaDTO.add(trechoMapper.toDTO(trecho));
+        }
+
+        return listaDTO;
     }
 
-    public Trecho buscarPorId(Long id) {
+    public TrechoDTO buscarPorId(Long id) {
 
-        return trechoRepository.findById(id).orElse(null);
+        Trecho trecho = buscarEntidade(id);
+
+        return trechoMapper.toDTO(trecho);
     }
 
-    public Trecho salvar(Trecho trecho) {
+    public Trecho buscarEntidade(Long id) {
 
-        if (trecho.getLogradouro() == null || trecho.getLogradouro().trim().isEmpty()) {
+        Trecho trecho = trechoRepository.findById(id).orElse(null);
+
+        if (trecho == null) {
+            throw new IllegalArgumentException("Trecho não encontrado.");
+        }
+
+        return trecho;
+    }
+
+    @Transactional
+    public TrechoDTO salvar(TrechoDTO dto) {
+
+        if (dto.getLogradouro() == null || dto.getLogradouro().trim().isEmpty()) {
 
             throw new IllegalArgumentException("O logradouro é obrigatório.");
         }
 
-        String tipo = trecho.getTipoCalcada();
+        if (dto.getLogradouro().length() > 120) {
+
+            throw new IllegalArgumentException("O logradouro deve ter no máximo 120 caracteres.");
+        }
+
+        String tipo = dto.getTipoCalcada();
 
         if (tipo == null ||
                 !(tipo.equals("Regular") || tipo.equals("Irregular") || tipo.equals("Escadaria") || tipo.equals("Sem iluminação"))) {
@@ -52,64 +81,41 @@ public class TrechoService {
             throw new IllegalArgumentException("Selecione um tipo de calçada válido.");
         }
 
-        if (trecho.getAltitude() == null || trecho.getAltitude() < 0 || trecho.getAltitude() > 2000) {
+        if (dto.getAltitude() == null || dto.getAltitude() < 0 || dto.getAltitude() > 2000) {
 
             throw new IllegalArgumentException("A altitude deve estar entre 0 e 2000 metros.");
         }
 
-        if (trecho.getBairro() == null || trecho.getBairro().getId() == null) {
+        if (dto.getBairroId() == null) {
 
             throw new IllegalArgumentException("Selecione um bairro.");
         }
 
-        Long bairroId = trecho.getBairro().getId();
 
-        Bairro bairro = bairroRepository.findById(bairroId).orElse(null);
-
-        if (bairro == null) {
-
-            throw new IllegalArgumentException("Bairro não encontrado.");
+        if (dto.getId() != null) {
+            buscarEntidade(dto.getId());
         }
 
-        trecho.setBairro(bairro);
+        Bairro bairro =
+                bairroService.buscarEntidade(dto.getBairroId());
 
-        return trechoRepository.save(trecho);
+        Trecho trecho = trechoMapper.toEntity(dto, bairro);
+
+        Trecho salvo = trechoRepository.save(trecho);
+
+        return trechoMapper.toDTO(salvo);
     }
 
-    public Trecho atualizar(Long id, Trecho dados) {
 
-        Trecho trecho = buscarPorId(id);
-
-        if (trecho == null) {
-
-            throw new IllegalArgumentException("Trecho não encontrado.");
-        }
-
-        trecho.setLogradouro(dados.getLogradouro());
-        trecho.setTipoCalcada(dados.getTipoCalcada());
-        trecho.setAltitude(dados.getAltitude());
-        trecho.setBairro(dados.getBairro());
-
-        return salvar(trecho);
-    }
-
+    @Transactional
     public void excluir(Long id) {
 
-        Trecho trecho = buscarPorId(id);
+        Trecho trecho = buscarEntidade(id);
 
-        if (trecho == null) {
 
-            throw new IllegalArgumentException("Trecho não encontrado.");
-        }
+        if (leituraRepository.existsByTrechoId(id)) {
 
-        List<Leitura> leituras = leituraRepository.findAll();
-
-        for (Leitura leitura : leituras) {
-
-            if (leitura.getTrecho() != null && leitura.getTrecho().getId().equals(id)) {
-
-                throw new IllegalArgumentException("Não é possível excluir este trecho, pois possui leituras cadastradas.");
-            }
+            throw new IllegalArgumentException("Não é possível excluir este trecho, pois possui leituras cadastradas.");
         }
 
         trechoRepository.delete(trecho);

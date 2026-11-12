@@ -4,9 +4,25 @@ import br.fiap.felipedelcolrm556176.dto.LeituraDTO;
 import br.fiap.felipedelcolrm556176.model.Leitura;
 import br.fiap.felipedelcolrm556176.model.Trecho;
 
+import org.springframework.stereotype.Component;
+
+@Component
 public class LeituraMapper {
 
-    public static LeituraDTO paraDTO(Leitura leitura) {
+    public Leitura toEntity(LeituraDTO dto, Trecho trecho, String status) {
+
+        Leitura leitura = new Leitura();
+
+        leitura.setId(dto.getId());
+        leitura.setDataHora(dto.getDataHora());
+        leitura.setLaminaCm(dto.getLaminaCm());
+        leitura.setStatus(status);
+        leitura.setTrecho(trecho);
+
+        return leitura;
+    }
+
+    public LeituraDTO toDTO(Leitura leitura) {
 
         LeituraDTO dto = new LeituraDTO();
 
@@ -16,9 +32,9 @@ public class LeituraMapper {
         dto.setStatus(leitura.getStatus());
 
         if (leitura.getTrecho() != null) {
+
             dto.setTrechoId(leitura.getTrecho().getId());
-            dto.setTrechoLogradouro(
-                    leitura.getTrecho().getLogradouro());
+            dto.setTrechoLogradouro(leitura.getTrecho().getLogradouro());
         }
 
         return dto;
@@ -26,22 +42,19 @@ public class LeituraMapper {
 
     public static Leitura paraEntidade(LeituraDTO dto) {
 
-        Leitura leitura = new Leitura();
-
-        leitura.setId(dto.getId());
-        leitura.setDataHora(dto.getDataHora());
-        leitura.setLaminaCm(dto.getLaminaCm());
-        leitura.setStatus(dto.getStatus());
+        Trecho trecho = null;
 
         if (dto.getTrechoId() != null) {
-
-            Trecho trecho = new Trecho();
+            trecho = new Trecho();
             trecho.setId(dto.getTrechoId());
-
-            leitura.setTrecho(trecho);
         }
 
-        return leitura;
+        return new LeituraMapper().toEntity(dto, trecho, dto.getStatus());
+    }
+
+    public static LeituraDTO paraDTO(Leitura leitura) {
+        return new LeituraMapper().toDTO(leitura);
     }
 }
+
 

@@ -1,48 +1,89 @@
 <!DOCTYPE html>
 <html lang="pt-br" xmlns:th="http://www.thymeleaf.org">
+
 <head>
     <meta charset="UTF-8">
     <title>Lista de Bairros</title>
 </head>
+
 <body>
 
 <h1>Cidade em Dia de Chuva</h1>
+
 <h2>Lista de Bairros</h2>
 
-<p th:text="${mensagem}"></p>
-<p th:text="${erro}"></p>
 
-<a th:href="@{/bairros/novo}">Cadastrar Bairro</a>
+<p th:if="${mensagem != null}"
+   th:text="${mensagem}"></p>
+
+<p th:if="${erro != null}"
+   th:text="${erro}"></p>
+
+
+<a th:href="@{/bairros/novo}">
+    Cadastrar Bairro
+</a>
 
 <br><br>
 
+
 <table border="1">
+
     <tr>
         <th>ID</th>
         <th>Nome</th>
         <th>Zona</th>
-        <th>Area (km2)</th>
-        <th>Acoes</th>
+        <th>Área (km²)</th>
+        <th>Ações</th>
     </tr>
 
     <tr th:each="bairro : ${bairros}">
+
         <td th:text="${bairro.id}"></td>
+
         <td th:text="${bairro.nome}"></td>
+
         <td th:text="${bairro.zona}"></td>
+
         <td th:text="${bairro.areaKm2}"></td>
 
         <td>
-            <a th:href="@{/bairros/editar/{id}(id=${bairro.id})}">
+
+
+            <a th:href="@{/bairros/{id}/editar(id=${bairro.id})}">
                 Editar
             </a>
 
-            <form th:action="@{/bairros/excluir/{id}(id=${bairro.id})}"
+
+            <form th:action="@{/bairros/{id}/excluir(id=${bairro.id})}"
                   method="post">
-                <button type="submit">Excluir</button>
+
+                <button type="submit">
+                    Excluir
+                </button>
+
             </form>
+
+
+            <a th:href="@{/bairros/{id}/painel(id=${bairro.id})}">
+                Painel
+            </a>
+
         </td>
+
     </tr>
+
 </table>
+
+<br>
+
+<!-- Navegacao -->
+
+<a th:href="@{/trechos}">Trechos</a>
+
+<br><br>
+
+<a th:href="@{/leituras}">Leituras</a>
 
 </body>
 </html>
