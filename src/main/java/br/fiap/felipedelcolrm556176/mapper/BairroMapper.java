@@ -1,7 +1,7 @@
 package br.fiap.felipedelcolrm556176.mapper;
 
 import br.fiap.felipedelcolrm556176.dto.BairroDTO;
-import br.fiap.felipedelcolrm556176.model.Bairro;
+import br.fiap.felipedelcolrm556176.domain.Bairro;
 
 import org.springframework.stereotype.Component;
 

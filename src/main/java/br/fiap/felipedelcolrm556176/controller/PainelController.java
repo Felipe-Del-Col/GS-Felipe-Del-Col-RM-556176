@@ -68,6 +68,6 @@ public class PainelController {
             }
         }
 
-        return "painel";
+         return "bairros/painel";
     }
 }

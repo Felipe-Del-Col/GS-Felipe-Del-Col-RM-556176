@@ -3,7 +3,7 @@ package br.fiap.felipedelcolrm556176.service;
 
 import br.fiap.felipedelcolrm556176.dto.BairroDTO;
 import br.fiap.felipedelcolrm556176.mapper.BairroMapper;
-import br.fiap.felipedelcolrm556176.model.Bairro;
+import br.fiap.felipedelcolrm556176.domain.Bairro;
 import br.fiap.felipedelcolrm556176.repository.BairroRepository;
 import br.fiap.felipedelcolrm556176.repository.TrechoRepository;
 

@@ -1,57 +1,91 @@
-
 <!DOCTYPE html>
 <html lang="pt-br" xmlns:th="http://www.thymeleaf.org">
+
 <head>
     <meta charset="UTF-8">
     <title>Lista de Trechos</title>
 </head>
+
 <body>
 
 <h1>Cidade em Dia de Chuva</h1>
+
 <h2>Lista de Trechos</h2>
 
-<p th:text="${mensagem}"></p>
-<p th:text="${erro}"></p>
+<p th:if="${mensagem != null}"
+   th:text="${mensagem}"></p>
 
-<a th:href="@{/trechos/novo}">Cadastrar Trecho</a>
+<p th:if="${erro != null}"
+   th:text="${erro}"></p>
+<a th:href="@{/trechos/novo}">
+    Cadastrar Trecho
+</a>
 
 <br><br>
 
 <table border="1">
+
     <tr>
         <th>ID</th>
         <th>Logradouro</th>
+        <th>Bairro</th>
         <th>Tipo de Calçada</th>
         <th>Altitude (m)</th>
-        <th>Bairro</th>
         <th>Ações</th>
     </tr>
 
     <tr th:each="trecho : ${trechos}">
+
         <td th:text="${trecho.id}"></td>
+
         <td th:text="${trecho.logradouro}"></td>
-        <td th:text="${trecho.tipoCalcada}"></td>
-        <td th:text="${trecho.altitude}"></td>
+
         <td th:text="${trecho.bairroNome}"></td>
 
+        <td th:text="${trecho.tipoCalcada}"></td>
+
+        <td th:text="${trecho.altitude}"></td>
+
         <td>
-            <a th:href="@{/trechos/editar/{id}(id=${trecho.id})}">
+
+            <a th:href="@{/trechos/{id}/editar(id=${trecho.id})}">
                 Editar
             </a>
 
-            <form th:action="@{/trechos/excluir/{id}(id=${trecho.id})}"
+
+            <form th:action="@{/trechos/{id}/excluir(id=${trecho.id})}"
                   method="post">
-                <button type="submit">Excluir</button>
+
+                <button type="submit">
+                    Excluir
+                </button>
+
             </form>
+
         </td>
+
     </tr>
+
 </table>
+
+<p th:if="${#lists.isEmpty(trechos)}">
+    Nenhum trecho cadastrado.
+</p>
 
 <br>
 
-<a th:href="@{/bairros}">Voltar para Bairros</a>
+<a th:href="@{/bairros}">Bairros</a>
+
+<br><br>
+
+<a th:href="@{/leituras}">Leituras</a>
+
+<br><br>
+
+<a th:href="@{/painel}">Painel de Situação</a>
 
 </body>
 </html>
+
 
 

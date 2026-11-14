@@ -5,20 +5,24 @@ import br.fiap.felipedelcolrm556176.dto.TrechoDTO;
 import br.fiap.felipedelcolrm556176.service.TrechoService;
 import br.fiap.felipedelcolrm556176.service.BairroService;
 
+import jakarta.validation.Valid;
+
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
+import org.springframework.validation.BindingResult;
+
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.ModelAttribute;
 import org.springframework.web.bind.annotation.RequestMapping;
+
 import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 import org.springframework.dao.DataIntegrityViolationException;
 
 @Controller
 @RequestMapping("/trechos")
 public class TrechoController {
-
     private TrechoService trechoService;
     private BairroService bairroService;
 
@@ -45,7 +49,7 @@ public class TrechoController {
         return "trechos/formulario";
     }
 
-    @GetMapping({"/editar/{id}", "/{id}/editar"})
+    @GetMapping({"/{id}/editar", "/editar/{id}"})
     public String editar(@PathVariable Long id, Model model, RedirectAttributes redirectAttributes) {
 
         try {
@@ -67,7 +71,14 @@ public class TrechoController {
     }
 
     @PostMapping("/salvar")
-    public String salvar(@ModelAttribute("trecho") TrechoDTO dto, RedirectAttributes redirectAttributes) {
+    public String salvar(@Valid @ModelAttribute("trecho") TrechoDTO dto, BindingResult resultado, Model model, RedirectAttributes redirectAttributes) {
+
+        if (resultado.hasErrors()) {
+
+            model.addAttribute("bairros", bairroService.listar());
+
+            return "trechos/formulario";
+        }
 
         try {
 
@@ -84,19 +95,25 @@ public class TrechoController {
                 redirectAttributes.addFlashAttribute("mensagem", "Trecho atualizado com sucesso.");
             }
 
+            return "redirect:/trechos";
+
         } catch (IllegalArgumentException e) {
 
-            redirectAttributes.addFlashAttribute("erro", e.getMessage());
-        }
+            model.addAttribute("erro", e.getMessage());
 
-        return "redirect:/trechos";
+            model.addAttribute("bairros", bairroService.listar());
+
+            return "trechos/formulario";
+        }
     }
 
-    @PostMapping({"/excluir/{id}", "/{id}/excluir"})
+    @PostMapping({"/{id}/excluir", "/excluir/{id}"})
     public String excluir(@PathVariable Long id, RedirectAttributes redirectAttributes) {
 
         try {
+
             trechoService.excluir(id);
+
             redirectAttributes.addFlashAttribute("mensagem", "Trecho excluído com sucesso.");
 
         } catch (IllegalArgumentException e) {
@@ -111,4 +128,3 @@ public class TrechoController {
         return "redirect:/trechos";
     }
 }
-

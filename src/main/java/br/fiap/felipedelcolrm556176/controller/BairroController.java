@@ -4,8 +4,11 @@ package br.fiap.felipedelcolrm556176.controller;
 import br.fiap.felipedelcolrm556176.dto.BairroDTO;
 import br.fiap.felipedelcolrm556176.service.BairroService;
 
+import jakarta.validation.Valid;
+
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
+import org.springframework.validation.BindingResult;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.PathVariable;
@@ -60,7 +63,12 @@ public class BairroController {
     }
 
     @PostMapping("/salvar")
-    public String salvar(@ModelAttribute("bairro") BairroDTO dto, RedirectAttributes redirectAttributes) {
+    public String salvar(@Valid @ModelAttribute("bairro") BairroDTO dto, BindingResult resultado, Model model, RedirectAttributes redirectAttributes) {
+
+        if (resultado.hasErrors()) {
+
+            return "bairros/formulario";
+        }
 
         try {
 
@@ -77,12 +85,14 @@ public class BairroController {
                 redirectAttributes.addFlashAttribute("mensagem", "Bairro atualizado com sucesso.");
             }
 
+            return "redirect:/bairros";
+
         } catch (IllegalArgumentException e) {
 
-            redirectAttributes.addFlashAttribute("erro", e.getMessage());
-        }
+            model.addAttribute("erro", e.getMessage());
 
-        return "redirect:/bairros";
+            return "bairros/formulario";
+        }
     }
 
     @PostMapping({"/{id}/excluir", "/excluir/{id}"})

@@ -2,8 +2,8 @@ package br.fiap.felipedelcolrm556176.service;
 
 import br.fiap.felipedelcolrm556176.dto.LeituraDTO;
 import br.fiap.felipedelcolrm556176.mapper.LeituraMapper;
-import br.fiap.felipedelcolrm556176.model.Leitura;
-import br.fiap.felipedelcolrm556176.model.Trecho;
+import br.fiap.felipedelcolrm556176.domain.Leitura;
+import br.fiap.felipedelcolrm556176.domain.Trecho;
 import br.fiap.felipedelcolrm556176.repository.LeituraRepository;
 
 import org.springframework.stereotype.Service;
@@ -100,9 +100,7 @@ public class LeituraService {
 
         Leitura leitura = leituraMapper.toEntity(dto, trecho, status);
 
-
         Leitura salva = leituraRepository.save(leitura);
-
 
         return leituraMapper.toDTO(salva);
     }

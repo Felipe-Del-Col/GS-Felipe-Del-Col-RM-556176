@@ -3,8 +3,8 @@ package br.fiap.felipedelcolrm556176.service;
 
 import br.fiap.felipedelcolrm556176.dto.TrechoDTO;
 import br.fiap.felipedelcolrm556176.mapper.TrechoMapper;
-import br.fiap.felipedelcolrm556176.model.Bairro;
-import br.fiap.felipedelcolrm556176.model.Trecho;
+import br.fiap.felipedelcolrm556176.domain.Bairro;
+import br.fiap.felipedelcolrm556176.domain.Trecho;
 import br.fiap.felipedelcolrm556176.repository.TrechoRepository;
 import br.fiap.felipedelcolrm556176.repository.LeituraRepository;
 

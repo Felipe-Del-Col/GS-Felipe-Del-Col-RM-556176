@@ -1,0 +1,49 @@
+<!DOCTYPE html>
+<html lang="pt-br" xmlns:th="http://www.thymeleaf.org">
+
+<head>
+    <meta charset="UTF-8">
+    <title>Cidade em Dia de Chuva</title>
+</head>
+
+<body>
+
+<h1>Cidade em Dia de Chuva</h1>
+<h2>Sistema de Monitoramento de Chuvas</h2>
+<p>
+    Bem-vindo ao sistema de monitoramento
+    da lâmina d'água nos bairros.
+</p>
+
+<h3>Menu Principal</h3>
+
+<ul>
+
+    <li>
+        <a th:href="@{/bairros}">
+            Gerenciar Bairros
+        </a>
+    </li>
+
+    <li>
+        <a th:href="@{/trechos}">
+            Gerenciar Trechos
+        </a>
+    </li>
+
+    <li>
+        <a th:href="@{/leituras}">
+            Gerenciar Leituras
+        </a>
+    </li>
+
+    <li>
+        <a th:href="@{/painel}">
+            Painel de Situação
+        </a>
+    </li>
+
+</ul>
+
+</body>
+</html>

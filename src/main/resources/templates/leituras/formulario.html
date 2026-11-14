@@ -1,50 +1,90 @@
 <!DOCTYPE html>
 <html lang="pt-br" xmlns:th="http://www.thymeleaf.org">
+
 <head>
     <meta charset="UTF-8">
     <title>Cadastro de Leitura</title>
 </head>
+
 <body>
 
-<h1>Cadastro de Leitura</h1>
+<h1>Cidade em Dia de Chuva</h1>
+
+<h2>Cadastro e Edição de Leitura</h2>
+
+
+<p th:if="${erro != null}"
+   th:text="${erro}">
+</p>
+
 
 <form th:action="@{/leituras/salvar}"
-      th:object="${leitura}" method="post">
+      th:object="${leitura}"
+      method="post">
+
 
     <input type="hidden" th:field="*{id}">
 
-    <label>Data e Hora:</label>
-    <input type="datetime-local"
-           th:field="*{dataHora}" required>
-
-    <br><br>
-
-    <label>Nivel da Agua (cm):</label>
-    <input type="number"
-           th:field="*{laminaCm}"
-           min="0" max="300" required>
-
-    <br><br>
 
     <label>Trecho:</label>
+
     <select th:field="*{trechoId}" required>
+
         <option value="">Selecione</option>
 
         <option th:each="trecho : ${trechos}"
                 th:value="${trecho.id}"
-                th:text="${trecho.logradouro}">
+                th:text="${trecho.logradouro + ' (' + trecho.bairroNome + ')'}">
         </option>
+
     </select>
 
-    <br><br>
+    <p th:if="${#fields.hasErrors('trechoId')}"
+       th:errors="*{trechoId}">
+    </p>
 
-    <button type="submit">Salvar</button>
+    <br>
+
+
+    <label>Data e Hora:</label>
+
+    <input type="datetime-local"
+           th:field="*{dataHora}"
+           required>
+
+    <p th:if="${#fields.hasErrors('dataHora')}"
+       th:errors="*{dataHora}">
+    </p>
+
+    <br>
+
+
+    <label>Lâmina d'água (cm):</label>
+
+    <input type="number"
+           th:field="*{laminaCm}"
+           min="0"
+           max="300"
+           required>
+
+    <p th:if="${#fields.hasErrors('laminaCm')}"
+       th:errors="*{laminaCm}">
+    </p>
+
+    <br>
+
+
+    <button type="submit">
+        Salvar
+    </button>
 
 </form>
 
 <br>
 
-<a th:href="@{/leituras}">Voltar</a>
+<a th:href="@{/leituras}">
+    Voltar para Leituras
+</a>
 
 </body>
 </html>

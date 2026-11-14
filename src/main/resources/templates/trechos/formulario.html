@@ -1,60 +1,111 @@
 <!DOCTYPE html>
 <html lang="pt-br" xmlns:th="http://www.thymeleaf.org">
+
 <head>
     <meta charset="UTF-8">
     <title>Cadastro de Trecho</title>
 </head>
+
 <body>
 
-<h1>Cadastro de Trecho</h1>
+<h1>Cidade em Dia de Chuva</h1>
+
+<h2>Cadastro e Edição de Trecho</h2>
+
+
+<p th:if="${erro != null}"
+   th:text="${erro}">
+</p>
+
 
 <form th:action="@{/trechos/salvar}"
-      th:object="${trecho}" method="post">
+      th:object="${trecho}"
+      method="post">
+
 
     <input type="hidden" th:field="*{id}">
 
+
     <label>Logradouro:</label>
-    <input type="text" th:field="*{logradouro}" required>
 
-    <br><br>
+    <input type="text"
+           th:field="*{logradouro}"
+           maxlength="120"
+           required>
 
-    <label>Tipo de Calçada:</label>
-    <select th:field="*{tipoCalcada}" required>
-        <option value="">Selecione</option>
-        <option value="Regular">Regular</option>
-        <option value="Irregular">Irregular</option>
-        <option value="Escadaria">Escadaria</option>
-        <option value="Sem iluminação">Sem iluminação</option>
-    </select>
+    <p th:if="${#fields.hasErrors('logradouro')}"
+       th:errors="*{logradouro}">
+    </p>
 
-    <br><br>
-
-    <label>Altitude (m):</label>
-    <input type="number" th:field="*{altitude}"
-           min="0" max="2000" required>
-
-    <br><br>
+    <br>
 
     <label>Bairro:</label>
+
     <select th:field="*{bairroId}" required>
+
         <option value="">Selecione</option>
 
         <option th:each="bairro : ${bairros}"
                 th:value="${bairro.id}"
                 th:text="${bairro.nome}">
         </option>
+
     </select>
 
-    <br><br>
+    <p th:if="${#fields.hasErrors('bairroId')}"
+       th:errors="*{bairroId}">
+    </p>
 
-    <button type="submit">Salvar</button>
+    <br>
+
+    <label>Tipo de Calçada:</label>
+
+    <select th:field="*{tipoCalcada}" required>
+
+        <option value="">Selecione</option>
+
+        <option value="Regular">Regular</option>
+
+        <option value="Irregular">Irregular</option>
+
+        <option value="Escadaria">Escadaria</option>
+
+        <option value="Sem iluminação">Sem iluminação</option>
+
+    </select>
+
+    <p th:if="${#fields.hasErrors('tipoCalcada')}"
+       th:errors="*{tipoCalcada}">
+    </p>
+
+    <br>
+
+    <label>Altitude (m):</label>
+
+    <input type="number"
+           th:field="*{altitude}"
+           min="0"
+           max="2000"
+           required>
+
+    <p th:if="${#fields.hasErrors('altitude')}"
+       th:errors="*{altitude}">
+    </p>
+
+    <br>
+
+    <button type="submit">
+        Salvar
+    </button>
 
 </form>
 
 <br>
 
-<a th:href="@{/trechos}">Voltar</a>
+
+<a th:href="@{/trechos}">
+    Voltar para Trechos
+</a>
 
 </body>
 </html>
-

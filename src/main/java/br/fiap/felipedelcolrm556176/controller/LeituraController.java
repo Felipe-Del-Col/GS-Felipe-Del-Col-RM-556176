@@ -1,17 +1,18 @@
-
 package br.fiap.felipedelcolrm556176.controller;
 
 import br.fiap.felipedelcolrm556176.dto.LeituraDTO;
 import br.fiap.felipedelcolrm556176.service.LeituraService;
 import br.fiap.felipedelcolrm556176.service.TrechoService;
-
+import jakarta.validation.Valid;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
+import org.springframework.validation.BindingResult;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.ModelAttribute;
 import org.springframework.web.bind.annotation.RequestMapping;
+
 import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 
 @Controller
@@ -44,10 +45,8 @@ public class LeituraController {
         return "leituras/formulario";
     }
 
-    @GetMapping({"/editar/{id}", "/{id}/editar"})
-    public String editar(@PathVariable Long id,
-                         Model model,
-                         RedirectAttributes redirectAttributes) {
+    @GetMapping({"/{id}/editar", "/editar/{id}"})
+    public String editar(@PathVariable Long id, Model model, RedirectAttributes redirectAttributes) {
 
         try {
 
@@ -67,40 +66,50 @@ public class LeituraController {
         }
     }
 
+    // Salvar ou atualizar leitura
     @PostMapping("/salvar")
-    public String salvar(@ModelAttribute("leitura") LeituraDTO dto, RedirectAttributes redirectAttributes) {
+    public String salvar(@Valid @ModelAttribute("leitura") LeituraDTO dto, BindingResult resultado, Model model, RedirectAttributes redirectAttributes) {
+
+        if (resultado.hasErrors()) {
+
+            model.addAttribute("trechos", trechoService.listar());
+
+            return "leituras/formulario";
+        }
 
         try {
 
-            boolean nova = dto.getId() == null;
+            boolean novo = dto.getId() == null;
 
             leituraService.salvar(dto);
 
-            if (nova) {
+            if (novo) {
 
-                redirectAttributes.addFlashAttribute("mensagem", "Leitura salva com sucesso!");
+                redirectAttributes.addFlashAttribute("mensagem", "Leitura cadastrada com sucesso.");
 
             } else {
 
-                redirectAttributes.addFlashAttribute("mensagem", "Leitura atualizada com sucesso!");
+                redirectAttributes.addFlashAttribute("mensagem", "Leitura atualizada com sucesso.");
             }
+
+            return "redirect:/leituras";
 
         } catch (IllegalArgumentException e) {
 
-            redirectAttributes.addFlashAttribute("erro", e.getMessage());
-        }
+            model.addAttribute("erro", e.getMessage());
 
-        return "redirect:/leituras";
+            model.addAttribute("trechos", trechoService.listar());
+
+            return "leituras/formulario";
+        }
     }
 
 
-    @PostMapping({"/excluir/{id}", "/{id}/excluir"})
+    @PostMapping({"/{id}/excluir", "/excluir/{id}"})
     public String excluir(@PathVariable Long id, RedirectAttributes redirectAttributes) {
 
         try {
-
             leituraService.excluir(id);
-
             redirectAttributes.addFlashAttribute("mensagem", "Leitura excluída com sucesso.");
 
         } catch (IllegalArgumentException e) {

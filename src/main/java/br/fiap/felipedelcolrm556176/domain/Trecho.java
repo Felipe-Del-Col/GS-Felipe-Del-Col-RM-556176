@@ -1,5 +1,5 @@
 
-package br.fiap.felipedelcolrm556176.model;
+package br.fiap.felipedelcolrm556176.domain;
 
 import jakarta.persistence.*;
 

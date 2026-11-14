@@ -1,8 +1,8 @@
 package br.fiap.felipedelcolrm556176.mapper;
 
 import br.fiap.felipedelcolrm556176.dto.LeituraDTO;
-import br.fiap.felipedelcolrm556176.model.Leitura;
-import br.fiap.felipedelcolrm556176.model.Trecho;
+import br.fiap.felipedelcolrm556176.domain.Leitura;
+import br.fiap.felipedelcolrm556176.domain.Trecho;
 
 import org.springframework.stereotype.Component;
 

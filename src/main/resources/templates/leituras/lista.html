@@ -1,54 +1,90 @@
+
 <!DOCTYPE html>
 <html lang="pt-br" xmlns:th="http://www.thymeleaf.org">
+
 <head>
     <meta charset="UTF-8">
     <title>Lista de Leituras</title>
 </head>
+
 <body>
 
 <h1>Cidade em Dia de Chuva</h1>
+
 <h2>Lista de Leituras</h2>
 
-<p th:text="${mensagem}"></p>
-<p th:text="${erro}"></p>
+<p th:if="${mensagem != null}"
+   th:text="${mensagem}"></p>
 
-<a th:href="@{/leituras/novo}">Cadastrar Leitura</a>
+<p th:if="${erro != null}"
+   th:text="${erro}"></p>
+
+<a th:href="@{/leituras/novo}">
+    Cadastrar Leitura
+</a>
 
 <br><br>
 
 <table border="1">
+
     <tr>
         <th>ID</th>
         <th>Data e Hora</th>
-        <th>Nivel da Agua (cm)</th>
-        <th>Status</th>
         <th>Trecho</th>
-        <th>Acoes</th>
+        <th>Lâmina (cm)</th>
+        <th>Status</th>
+        <th>Ações</th>
     </tr>
 
     <tr th:each="leitura : ${leituras}">
+
         <td th:text="${leitura.id}"></td>
-        <td th:text="${leitura.dataHora}"></td>
-        <td th:text="${leitura.laminaCm}"></td>
-        <td th:text="${leitura.status}"></td>
+
+        <td th:text="${#temporals.format(leitura.dataHora, 'dd/MM/yyyy HH:mm')}"></td>
+
         <td th:text="${leitura.trechoLogradouro}"></td>
 
+        <td th:text="${leitura.laminaCm}"></td>
+
+        <td th:text="${leitura.status}"></td>
+
         <td>
-            <a th:href="@{/leituras/editar/{id}(id=${leitura.id})}">
+
+            <a th:href="@{/leituras/{id}/editar(id=${leitura.id})}">
                 Editar
             </a>
 
-            <form th:action="@{/leituras/excluir/{id}(id=${leitura.id})}"
+
+            <form th:action="@{/leituras/{id}/excluir(id=${leitura.id})}"
                   method="post">
-                <button type="submit">Excluir</button>
+
+                <button type="submit">
+                    Excluir
+                </button>
+
             </form>
+
         </td>
+
     </tr>
+
 </table>
+
+<p th:if="${#lists.isEmpty(leituras)}">
+    Nenhuma leitura cadastrada.
+</p>
 
 <br>
 
-<a th:href="@{/trechos}">Voltar para Trechos</a>
+<a th:href="@{/bairros}">Bairros</a>
+
+<br><br>
+
+<a th:href="@{/trechos}">Trechos</a>
+
+<br><br>
+
+<a th:href="@{/painel}">Painel de Situação</a>
 
 </body>
 </html>
